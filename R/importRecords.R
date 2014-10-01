@@ -26,7 +26,7 @@ importRecords.redcapApiConnection <- function(rcon, data,
   overwriteBehavior <- match.arg(overwriteBehavior, c('normal', 'overwrite'))
   returnContent <- match.arg(returnContent, c('count', 'ids', 'nothing'))
   
-  if (is.null(proj$meta_data)) meta_data <- exportMetaData(rcon)
+  if (is.null(proj$meta_data)) meta_data <- exportMetaData(rcon) else meta_data <- proj$meta_data
   if (compareRedcapVersion(proj$version, "5.5.21") == -1 )
     meta_data <- syncUnderscoreCodings(data, meta_data, export=FALSE)
   form_names <- unique(meta_data$form_name)
@@ -81,6 +81,18 @@ importRecords.redcapApiConnection <- function(rcon, data,
                          "' must have class Date, POSIXct, or character.", sep=""))
   }
   
+  #*** Remove calculated fields
+  calc_field <- meta_data$field_name[meta_data$field_type == "calc"]
+  if (length(calc_field) > 0){
+    warn.flag <- warn.flag + 1
+    warn.msg <- c(warn.msg,
+                  paste(warn.flag, ": The variable(s) '", paste(calc_field, collapse="', '"), 
+                        "' are calculated fields and cannot be imported. ",
+                        "They have been removed from the imported data frame.", sep=""))
+    data <- data[, !names(data) %in% calc_field, drop=FALSE]
+  }
+  
+  if (warn.flag) warning(paste(warn.msg, collapse="\n"))
   if (error.flag) stop(paste(error.msg, collapse="\n"))
   
   
