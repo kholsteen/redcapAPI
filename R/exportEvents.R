@@ -2,8 +2,6 @@
 #' @aliases exportEvents.redcapApiConnection
 #' @aliases exportEvents.redcapDbConnection
 #' @export exportEvents
-#' @export exportEvents.redcapApiConnection
-#' @export exportEvents.redcapDbConnection
 #' @importFrom httr POST
 #' 
 #' @title Export the Events for a Project
@@ -51,6 +49,7 @@
 exportEvents <- function(rcon, arms, ...) UseMethod("exportEvents")
 
 #' @rdname exportEvents
+#' @export
 
 exportEvents.redcapDbConnection <- function(rcon, arms, ...){
   message("Please accept my apologies.  The exportUsers method for redcapDbConnection objects\n",
@@ -58,6 +57,7 @@ exportEvents.redcapDbConnection <- function(rcon, arms, ...){
 }
 
 #' @rdname exportEvents
+#' @export
 
 exportEvents.redcapApiConnection <- function(rcon, arms, ...){
   .params <- list(token=rcon$token, content='event', format='csv', returnFormat='csv')
@@ -68,7 +68,8 @@ exportEvents.redcapApiConnection <- function(rcon, arms, ...){
     read.csv(textConnection(as.character(x)), stringsAsFactors=FALSE) 
   #*** For classic projects, we want to avoid throwing a disruptive error. Instead, we 
   #*** return the message that indicates this is a classic project.
-  else if (x$status_code == "400" & as.character(x) == "You cannot export events for classic projects") 
+  else if (x$status_code == "400" & as.character(x) %in% c("You cannot export events for classic projects",
+                                                           "ERROR: You cannot export events for classic projects")) 
     paste0(x$status_code, ": ", as.character(x))
   else stop(paste(x$status_code, ": ", as.character(x), sep=""))
 }

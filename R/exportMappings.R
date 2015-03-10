@@ -2,8 +2,6 @@
 #' @aliases exportMappings.redcapApiConnection
 #' @aliases exportMappings.redcapDbConection
 #' @export exportMappings
-#' @export exportMappings.redcapApiConnection
-#' @export exportMappings.redcapDbConnection
 #' @importFrom httr POST
 #' 
 #' @title Exports the Event-Form Mappings for a Project
@@ -78,6 +76,7 @@
 exportMappings <- function(rcon, arms, ...) UseMethod("exportMappings")
 
 #' @rdname exportMappings
+#' @export
 
 exportMappings.redcapDbConnection <- function(rcon, arms, ...){
   message("Please accept my apologies.  The exportMappings method for redcapDbConnection objects\n",
@@ -85,6 +84,7 @@ exportMappings.redcapDbConnection <- function(rcon, arms, ...){
 }
 
 #' @rdname exportMappings
+#' @export
 
 exportMappings.redcapApiConnection <- function(rcon, arms, ...){
   .params <- list(token=rcon$token, content='formEventMapping', format='csv')
@@ -95,7 +95,9 @@ exportMappings.redcapApiConnection <- function(rcon, arms, ...){
     return(read.csv(textConnection(as.character(x)), stringsAsFactors=FALSE))
   #*** For classic projects, we want to avoid throwing a disruptive error. Instead, we 
   #*** return the message that indicates this is a classic project.
-  else if (x$status_code == "400" & as.character(x) == "You cannot export form/event mappings for classic projects") 
+  else if (x$status_code == "400" & as.character(x) %in% 
+             c("You cannot export form/event mappings for classic projects",
+               "ERROR: You cannot export form/event mappings for classic projects")) 
     paste0(x$status_code, ": ", as.character(x))
   else (stop(paste0(x$status_code, ": ", as.character(x))))
 }

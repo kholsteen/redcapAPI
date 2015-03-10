@@ -4,8 +4,6 @@
 #' @aliases exportRecords_offline
 #' @aliases queryRecords
 #' @export exportRecords
-#' @export exportRecords.redcapApiConnection
-#' @export exportRecords.redcapDbConnection
 #' @export exportRecords_offline
 #' @importFrom DBI dbGetQuery
 #' @importFrom chron times
@@ -280,6 +278,7 @@ function(rcon,factors=TRUE,fields=NULL,forms=NULL,records=NULL,events=NULL,label
    UseMethod("exportRecords")
 
 #' @rdname exportRecords
+#' @export
 #' 
 exportRecords.redcapDbConnection <- 
 function(rcon,factors=TRUE,fields=NULL,forms=NULL,records=NULL,events=NULL,labels=TRUE,dates=TRUE,
@@ -347,6 +346,7 @@ function(rcon,factors=TRUE,fields=NULL,forms=NULL,records=NULL,events=NULL,label
 }
 
 #' @rdname exportRecords
+#' @export
 
 exportRecords.redcapApiConnection <- 
   function(rcon,factors=TRUE,fields=NULL,forms=NULL,records=NULL,events=NULL,labels=TRUE,dates=TRUE,
@@ -398,7 +398,12 @@ exportRecords.redcapApiConnection <-
       else #* found non-existent fields
         stop(paste("Non-existent fields:", paste(fields[!fields %in% meta_data$field_name], collapse=", "), sep=" "))
     }
-    else #* fields were not provided, default to all fields.
+    else if (!is.null(forms)){
+      field_names <- meta_data$field_name[meta_data$form_name %in% forms]
+      
+    }
+    else
+      #* fields were not provided, default to all fields.
       field_names <- meta_data$field_name
    
    #* Expand 'field_names' to include fields from specified forms.    
@@ -509,7 +514,7 @@ exportRecords.redcapApiConnection <-
       field_names[field_names %in%  attributes(meta_data)$checkbox_field_name_map[, 1]] <- 
             attributes(meta_data)$checkbox_field_name_map[, 2]
     }
-    
+
     lapply(field_names,
            function(i) 
            {
