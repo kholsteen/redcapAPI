@@ -59,6 +59,11 @@
 #' @param ... Additional arguments to be passed between methods.
 #' @param error_handling An option for how to handle errors returned by the API.
 #'   see \code{\link{redcap_error}}
+#' @param form_complete_auto \code{logical(1)}. When \code{TRUE} 
+#'   (default), the \code{[form]_complete} fields for any form 
+#'   from which at least one variable is requested will automatically
+#'   be retrieved.  When \code{FALSE}, these fields must be 
+#'   explicitly requested.
 #' 
 #' @details
 #' A record of exports through the API is recorded in the Logging section 
@@ -189,7 +194,8 @@ exportRecords.redcapApiConnection <-
            colClasses = NA, ..., 
            batch.size = -1,
            bundle = getOption("redcap_bundle"),
-           error_handling = getOption("redcap_error_handling"))
+           error_handling = getOption("redcap_error_handling"),
+           form_complete_auto = TRUE)
 {
   if (!is.na(match("proj", names(list(...)))))
   {
@@ -206,7 +212,8 @@ exportRecords.redcapApiConnection <-
                           classes = "redcapApiConnection",
                           add = coll)
   
-  massert(~ factors + labels + dates + survey + dag + checkboxLabels,
+  massert(~ factors + labels + dates + survey + dag + checkboxLabels + 
+            form_complete_auto,
           fun = checkmate::assert_logical,
           fixed = list(len = 1,
                        add = coll))
@@ -250,11 +257,18 @@ exportRecords.redcapApiConnection <-
       exportVersion(rcon)
     else
       bundle$version
+  
+  form_complete_fields <- 
+    sprintf("%s_complete",
+            unique(meta_data$form_name))
+  form_complete_fields <- 
+    form_complete_fields[!is.na(form_complete_fields)]
 
   #* Check that all fields exist in the meta data
   if (!is.null(fields)) 
   {
-    bad_fields <- fields[!fields %in% meta_data$field_name]
+    bad_fields <- fields[!fields %in% c(meta_data$field_name,
+                                        form_complete_fields)]
     if (length(bad_fields))
       coll$push(paste0("The following are not valid field names: ",
                        paste0(bad_fields, collapse = ", ")))
@@ -301,9 +315,25 @@ exportRecords.redcapApiConnection <-
              meta_data$field_name[meta_data$form_name %in% forms]))
   
   
-  suffixed <- checkbox_suffixes(fields = field_names,
-                                meta_data = meta_data, 
-                                version = version)
+  suffixed <- 
+    checkbox_suffixes(
+      # The subset prevents `[form]_complete` fields from 
+      # being included here.
+      fields = field_names[field_names %in% meta_data$field_name],
+      meta_data = meta_data, 
+      version = version)
+  
+  # Identify the forms from which the chosen fields are found
+  included_form <- 
+    unique(
+      meta_data$form_name[meta_data$field_name %in% field_names]
+    )
+  
+  # Add the form_name_complete column to the export
+  if (form_complete_auto){
+    field_names <- c(field_names, 
+                     sprintf("%s_complete", included_form))
+  }
   
   body <- list(token = rcon$token, 
                content = 'record',
@@ -364,7 +394,8 @@ unbatched <- function(rcon, body, colClasses, error_handling)
   if (x$status_code != 200) redcap_error(x, error_handling = error_handling)
   
   x <- as.character(x)
-  x <- iconv(x, "utf8", "ASCII", sub = "")
+  # probably not necessary for data.  Useful for meta data though. (See Issue #99)
+  # x <- iconv(x, "utf8", "ASCII", sub = "")
   utils::read.csv(text = x, 
                   stringsAsFactors = FALSE, 
                   na.strings = "",
@@ -394,7 +425,8 @@ batched <- function(rcon, body, batch.size, id, colClasses, error_handling)
   if (IDs$status_code != 200) redcap_error(IDs, error_handling)
   
   IDs <- as.character(IDs)
-  IDs <- iconv(IDs, "utf8", "ASCII", sub = "")
+  # probably not necessary for data.  Useful for meta data though. (See Issue #99)
+  # IDs <- iconv(IDs, "utf8", "ASCII", sub = "")
   IDs <- utils::read.csv(text = IDs,
                          stringsAsFactors = FALSE,
                          na.strings = "")
@@ -431,7 +463,8 @@ batched <- function(rcon, body, batch.size, id, colClasses, error_handling)
     if (x$status_code != 200) redcap_error(x, error_handling = "error")
     
     x <- as.character(x)
-    x <- iconv(x, "utf8", "ASCII", sub = "")
+    # probably not necessary for data.  Useful for meta data though. (See Issue #99)
+    # x <- iconv(x, "utf8", "ASCII", sub = "")
     batch_list[[i]] <- utils::read.csv(text = x,
                                        stringsAsFactors = FALSE,
                                        na.strings = "",
