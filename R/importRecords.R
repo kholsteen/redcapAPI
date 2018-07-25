@@ -65,7 +65,8 @@
 importRecords <- function(rcon, data,
                           overwriteBehavior=c('normal', 'overwrite'),
                           returnContent=c('count', 'ids', 'nothing'),
-                          returnData=FALSE, logfile="", ...) 
+                          returnData=FALSE,  get_meta_data = FALSE,
+                          logfile="", ...) 
 {
   UseMethod("importRecords")
 }
@@ -84,7 +85,7 @@ importRecords.redcapDbConnection <- function(rcon, data,
 #' @rdname importRecords
 #' @export
 
-importRecords.redcapApiConnection <- function(rcon, data,
+importRecords.redcapApiConnection <- function(rcon, get_meta_data = FALSE, data,
                                               overwriteBehavior = c('normal', 'overwrite'),
                                               returnContent = c('count', 'ids', 'nothing'),
                                               returnData = FALSE, logfile = "", 
@@ -134,24 +135,28 @@ importRecords.redcapApiConnection <- function(rcon, data,
   meta_data <- 
     if (is.null(bundle$meta_data)) 
       exportMetaData(rcon) 
-    else 
-      bundle$meta_data
+  else 
+    bundle$meta_data
   
   version <- 
     if (is.null(bundle$version))
       exportVersion(rcon)
-    else 
-      bundle$version
-
+  else 
+    bundle$version
+  
   if (utils::compareVersion(version, "5.5.21") == -1 )
     meta_data <- syncUnderscoreCodings(data, 
                                        meta_data, 
                                        export = FALSE)
   
+  
+  if (get_meta_data) {
+    return(as_tibble(meta_data))
+  }
   suffixed <- checkbox_suffixes(fields = meta_data$field_name,
                                 meta_data = meta_data, 
                                 version = version)
-  
+  #return(suffixed)
   form_names <- unique(meta_data$form_name)
   
   meta_data <- 
@@ -163,14 +168,16 @@ importRecords.redcapApiConnection <- function(rcon, data,
   #** Check that all of the variable names in 'data' exist in REDCap Database
   .checkbox <- meta_data[meta_data$field_type == "checkbox", ]
   
+  #print(.checkbox$select_choices_or_calculations)
   .opts <- lapply(X = .checkbox$select_choices_or_calculations, 
                   FUN = function(x) unlist(strsplit(x, 
-                                                    split = " [|] ")))
+                                                  split = " [|] ")))
+  #print(.opts)
   .opts <- lapply(X = .opts, 
-                  FUN = function(x) gsub(pattern = ",[[:print:]]+", 
+                  FUN = function(x) trimws(gsub(pattern = ",[[:print:]]+", 
                                          replacement = "", 
-                                         x = x))
-  
+                                         x = x)))
+ # print(.opts)
   check_var <- paste(rep(.checkbox$field_name, 
                          vapply(.opts, 
                                 FUN = length,
@@ -182,7 +189,8 @@ importRecords.redcapApiConnection <- function(rcon, data,
     c(unique(meta_data$field_name), 
       paste(form_names, "_complete", sep=""), 
       check_var)
-  
+ # print(paste0("check_var:", check_var))
+ # print(with_complete_fields)
   #** Remove survey identifiers and data access group fields from data
   w.remove <- 
     which(names(data) %in% 
@@ -191,7 +199,11 @@ importRecords.redcapApiConnection <- function(rcon, data,
               "redcap_data_access_group"))
   if (length(w.remove)) data <- data[-w.remove]
   
-  if (!all(names(data) %in% c(with_complete_fields, "redcap_event_name")))
+  print(which(!names(data) %in% with_complete_fields))
+  
+  
+  if (!all(names(data) %in% c(with_complete_fields, "redcap_event_name", 
+                              "redcap_repeat_instance", "redcap_repeat_instrument")))
   {
     coll$push(paste0("The variables ", 
                      paste(names(data)[!names(data) %in% with_complete_fields], collapse=", "),
@@ -247,12 +259,14 @@ importRecords.redcapApiConnection <- function(rcon, data,
   
   checkmate::reportAssertions(coll)
   
-  
+  #print(names(data))
   idvars <- 
     if ("redcap_event_name" %in% names(data)) 
       c(meta_data$field_name[1], "redcap_event_name") 
   else 
     meta_data$field_name[1]
+  
+  #print(idvars)
   
   msg <- paste0("REDCap Data Import Log: ", Sys.time(),
                 "\nThe following (if any) conditions were noted about the data.\n\n")
@@ -362,7 +376,7 @@ import_records_unbatched <- function(rcon, data, overwriteBehavior,
                                      returnContent)
 {
   data[is.na(data)] <- ""
-
+  
   out <- data_frame_to_string(data)
   
   ## Reattach attributes

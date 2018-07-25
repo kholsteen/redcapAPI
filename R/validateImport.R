@@ -79,6 +79,8 @@
 
 validateImport <- function(data, meta_data, logfile = "")
 {
+  print("Now Validating Imports!!")
+  
   coll <- checkmate::makeAssertCollection()
   
   checkmate::assert_data_frame(x = data,
@@ -105,7 +107,7 @@ validateImport <- function(data, meta_data, logfile = "")
     if (length(field_type)){
       if (field_type == "text" &&
           !is.na(meta_data[meta_index, 
-                    "text_validation_type_or_show_slider_number"])){
+                           "text_validation_type_or_show_slider_number"])){
         field_type <- meta_data[meta_index, 
                                 "text_validation_type_or_show_slider_number"]
       }
@@ -119,11 +121,17 @@ validateImport <- function(data, meta_data, logfile = "")
     field_choice <- meta_data[meta_index,
                               "select_choices_or_calculations"]
     
-    if (!length(field_type))
+    
+    if (field_name == c("redcap_repeat_instrument")) {
+      field_type <- "text"
+    } else if (field_name == "redcap_repeat_instance") {
+      field_type = "numeric"
+    } else if (!length(field_type) & !(field_name %in% c("redcap_repeat_instrument", 
+                                                  "redcap_repeat_instance")))
       field_type <- "form_complete"
     if (field_type %in% c("float", "integer", "number", "number_1dp"))
       field_type <- "numeric"
-    
+    print(paste0(field_name, " - ", field_type))
     data[[field_name]] <- 
       switch(
         EXPR = field_type,
