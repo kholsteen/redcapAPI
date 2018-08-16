@@ -131,7 +131,7 @@ validateImport <- function(data, meta_data, logfile = "")
       field_type <- "form_complete"
     if (field_type %in% c("float", "integer", "number", "number_1dp"))
       field_type <- "numeric"
-    print(paste0(field_name, " - ", field_type))
+    #print(paste0(field_name, " - ", field_type))
     data[[field_name]] <- 
       switch(
         EXPR = field_type,

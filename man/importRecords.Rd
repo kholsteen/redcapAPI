@@ -8,13 +8,13 @@
 \usage{
 importRecords(rcon, data, overwriteBehavior = c("normal", "overwrite"),
   returnContent = c("count", "ids", "nothing"), returnData = FALSE,
-  logfile = "", ...)
+  get_meta_data = FALSE, logfile = "", ...)
 
 \method{importRecords}{redcapDbConnection}(rcon, data,
   overwriteBehavior = c("normal", "overwrite"), returnContent = c("count",
   "ids", "nothing"), returnData = FALSE, logfile = "", ...)
 
-\method{importRecords}{redcapApiConnection}(rcon, data,
+\method{importRecords}{redcapApiConnection}(rcon, get_meta_data = FALSE, data,
   overwriteBehavior = c("normal", "overwrite"), returnContent = c("count",
   "ids", "nothing"), returnData = FALSE, logfile = "", ..., bundle = NULL,
   batch.size = -1)
@@ -39,6 +39,8 @@ providing an informative message. The data frame can be written to a csv
 and uploaded using the interactive tools to troubleshoot the
 problem.  Please shoot me an e-mail if you find errors I havne't
 accounted for.}
+
+\item{get_meta_data}{Just return the metadata}
 
 \item{logfile}{An optional filepath (preferably .txt) in which to print the
 log of errors and warnings about the data.
