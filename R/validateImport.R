@@ -79,7 +79,6 @@
 
 validateImport <- function(data, meta_data, logfile = "")
 {
-  print("Now Validating Imports!!")
   
   coll <- checkmate::makeAssertCollection()
   
