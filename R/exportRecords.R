@@ -164,8 +164,8 @@
 #' @export
 
 exportRecords <-
-  function(rcon, factors = TRUE, fields = NULL, forms = NULL, records = NULL,
-           events = NULL, labels = TRUE, dates = TRUE,
+  function(rcon, factors = FALSE, fields = NULL, forms = NULL, records = NULL,
+           events = NULL, labels = FALSE, dates = FALSE,
            survey = TRUE, dag = TRUE, checkboxLabels = FALSE, 
            colClasses = NA, ...)
     

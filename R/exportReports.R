@@ -133,9 +133,14 @@ exportReports.redcapApiConnection <- function(rcon, report_id, factors = TRUE, l
   
   if (x$status_code != 200) redcap_error(x, error_handling)
   
-  x <- utils::read.csv(textConnection(as.character(x)), 
+  x <- try(utils::read.csv(textConnection(as.character(x)), 
                        stringsAsFactors = FALSE, 
-                       na.strings = "")
+                       na.strings = ""))
+  
+  if ("try-error" %in% class(x)) {
+    cat("No lines available in input. Returning NULL from exportReports.\n")
+    return(NULL)
+  }
 
   #* synchronize underscore codings between records and meta data
   #* Only affects calls in REDCap versions earlier than 5.5.21

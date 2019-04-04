@@ -6,20 +6,20 @@
 \alias{allocationTable.redcapApiConnection}
 \alias{makeChoices}
 \alias{allocationTable_offline}
-\alias{allocationTable_offline}
 \title{Allocation Tables for the Randomization Module}
 \usage{
-allocationTable(rcon, random, strata = NULL, group = NULL, dag.id = NULL,
-  replicates, block.size, block.size.shift = 0, seed.dev = NULL,
-  seed.prod = NULL, bundle = NULL, weights = NULL, ...)
+allocationTable(rcon, random, strata = NULL, group = NULL,
+  dag.id = NULL, replicates, block.size, block.size.shift = 0,
+  seed.dev = NULL, seed.prod = NULL, bundle = NULL, weights = NULL,
+  ...)
 
 \method{allocationTable}{redcapDbConnection}(rcon, random, strata = NULL,
   group = NULL, dag.id = NULL, replicates, block.size,
   block.size.shift = 0, seed.dev = NULL, seed.prod = NULL,
   bundle = NULL, weights = c(1, 1), ...)
 
-\method{allocationTable}{redcapApiConnection}(rcon, random, strata = NULL,
-  group = NULL, dag.id = NULL, replicates, block.size,
+\method{allocationTable}{redcapApiConnection}(rcon, random,
+  strata = NULL, group = NULL, dag.id = NULL, replicates, block.size,
   block.size.shift = 0, seed.dev = NULL, seed.prod = NULL,
   bundle = NULL, weights = c(1, 1), ...)
 

@@ -7,10 +7,10 @@
 \alias{exportRecords_offline}
 \title{Export Records from a REDCap Database}
 \usage{
-exportRecords(rcon, factors = TRUE, fields = NULL, forms = NULL,
-  records = NULL, events = NULL, labels = TRUE, dates = TRUE,
-  survey = TRUE, dag = TRUE, checkboxLabels = FALSE, colClasses = NA,
-  ...)
+exportRecords(rcon, factors = FALSE, fields = NULL, forms = NULL,
+  records = NULL, events = NULL, labels = FALSE, dates = FALSE,
+  survey = TRUE, dag = TRUE, checkboxLabels = FALSE,
+  colClasses = NA, ...)
 
 \method{exportRecords}{redcapDbConnection}(rcon, factors = TRUE,
   fields = NULL, forms = NULL, records = NULL, events = NULL,
@@ -25,9 +25,9 @@ exportRecords(rcon, factors = TRUE, fields = NULL, forms = NULL,
   error_handling = getOption("redcap_error_handling"),
   form_complete_auto = TRUE)
 
-exportRecords_offline(datafile, meta_data, factors = TRUE, fields = NULL,
-  forms = NULL, labels = TRUE, dates = TRUE, checkboxLabels = FALSE,
-  colClasses = NA, ...)
+exportRecords_offline(datafile, meta_data, factors = TRUE,
+  fields = NULL, forms = NULL, labels = TRUE, dates = TRUE,
+  checkboxLabels = FALSE, colClasses = NA, ...)
 }
 \arguments{
 \item{rcon}{A REDCap connection object as created by \code{redcapConnection}.}

@@ -28,7 +28,7 @@ LazyLoad: yes
 URL: https://github.com/nutterb/redcapAPI/wiki,
         https://github.com/nutterb/redcapAPI, https://projectredcap.org
 BugReports: https://github.com/nutterb/redcapAPI/issues
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 NeedsCompilation: no
 Packaged: 2018-05-11 16:48:01 UTC; Nutter
 Author: Benjamin Nutter [aut, ctb, cre],

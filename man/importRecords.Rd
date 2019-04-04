@@ -11,13 +11,14 @@ importRecords(rcon, data, overwriteBehavior = c("normal", "overwrite"),
   get_meta_data = FALSE, logfile = "", ...)
 
 \method{importRecords}{redcapDbConnection}(rcon, data,
-  overwriteBehavior = c("normal", "overwrite"), returnContent = c("count",
-  "ids", "nothing"), returnData = FALSE, logfile = "", ...)
+  overwriteBehavior = c("normal", "overwrite"),
+  returnContent = c("count", "ids", "nothing"), returnData = FALSE,
+  logfile = "", ...)
 
-\method{importRecords}{redcapApiConnection}(rcon, get_meta_data = FALSE, data,
-  overwriteBehavior = c("normal", "overwrite"), returnContent = c("count",
-  "ids", "nothing"), returnData = FALSE, logfile = "", ..., bundle = NULL,
-  batch.size = -1)
+\method{importRecords}{redcapApiConnection}(rcon, get_meta_data = FALSE,
+  data, overwriteBehavior = c("normal", "overwrite"),
+  returnContent = c("count", "ids", "nothing"), returnData = FALSE,
+  logfile = "", ..., bundle = NULL, batch.size = -1)
 }
 \arguments{
 \item{rcon}{A REDCap connection object as created by \code{redcapConnection}.}
